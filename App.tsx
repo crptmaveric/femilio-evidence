@@ -1,118 +1,132 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
+import 'react-native-gesture-handler';
+import React, { useContext } from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { AuthProvider, AuthContext } from './src/context/AuthContext';
+import LoginScreen from './src/screens/LoginScreen';
+import RegisterScreen from './src/screens/RegisterScreen';
+import AdminDashboard from './src/screens/AdminDashboard';
+import AddDoctor from './src/screens/AddDoctor';
+import EditDoctor from './src/screens/EditDoctor';
+import DoctorDashboard from './src/screens/DoctorDashboard';
+import AddPatient from './src/screens/AddPatient';
+import EditPatient from './src/screens/EditPatient';
+import { extendTheme, NativeBaseProvider } from 'native-base';
+import { appStyle } from './src/theme/AppStyle';
+import {RootStackParamList} from "./src/types";
+import Navigator from "./Navigator";
 
-import React from 'react';
-import type {PropsWithChildren} from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+const Stack = createNativeStackNavigator<RootStackParamList>();
+const Tab = createBottomTabNavigator();
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
-
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
+function AuthStack() {
+    return (
+        <Stack.Navigator>
+            <Stack.Screen name="Login" component={LoginScreen} />
+            <Stack.Screen name="Register" component={RegisterScreen} />
+        </Stack.Navigator>
+    );
 }
 
-function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
-
-  return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
-  );
+function AdminTabs() {
+    return (
+        <Tab.Navigator>
+            {/*<Tab.Screen name="Doctors" component={AdminDashboard} />*/}
+            <Stack.Screen name="Patients" component={DoctorDashboard} />
+        </Tab.Navigator>
+    );
 }
 
-const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-});
+function DoctorTabs() {
+    return (
+        <Tab.Navigator>
+            <Tab.Screen name="Patients" component={DoctorDashboard} />
+        </Tab.Navigator>
+    );
+}
 
-export default App;
+function AdminStack() {
+    return (
+        <Stack.Navigator>
+            <Stack.Screen name="Patients" component={DoctorDashboard}/>
+            {/*<Stack.Screen name="AddDoctor" component={AddDoctor} />*/}
+            {/*<Stack.Screen name="EditDoctor" component={EditDoctor} />*/}
+            <Stack.Screen name="AddPatient" component={AddPatient} />
+            <Stack.Screen name="EditPatient" component={EditPatient} />
+        </Stack.Navigator>
+    );
+}
+
+function DoctorStack() {
+    return (
+        <Stack.Navigator>
+            <Stack.Screen name="DoctorTabs" component={DoctorTabs} options={{ headerShown: false }} />
+            <Stack.Screen name="AddPatient" component={AddPatient} />
+            <Stack.Screen name="EditPatient" component={EditPatient} />
+        </Stack.Navigator>
+    );
+}
+
+export default function App() {
+    const { user } = useContext(AuthContext);
+
+    const appTheme = extendTheme({
+        colors: {
+            primary: appStyle.colors.primary,
+            danger: appStyle.colors.danger,
+        },
+        fontConfig: {
+            SF: {
+                100: {
+                    normal: 'SF-Pro-Text-UltraLight',
+                    italic: 'SF-Pro-Text-UltraLightItalic',
+                },
+                200: {
+                    normal: 'SF-Pro-Text-Thin',
+                    italic: 'SF-Pro-Text-ThinItalic',
+                },
+                300: {
+                    normal: 'SF-Pro-Text-Light',
+                    italic: 'SF-Pro-Text-LightItalic',
+                },
+                400: {
+                    normal: 'SF-Pro-Text-Regular',
+                    italic: 'SF-Pro-Text-RegularItalic',
+                },
+                500: {
+                    normal: 'SF-Pro-Text-SemiBold',
+                    italic: 'SF-Pro-Text-SemiBoldItalic',
+                },
+                600: {
+                    normal: 'SF-Pro-Text-SemiBold',
+                    italic: 'SF-Pro-Text-SemiBoldItalic',
+                },
+                700: {
+                    normal: 'SF-Pro-Text-Bold',
+                    italic: 'SF-Pro-Text-BoldItalic',
+                },
+                800: {
+                    normal: 'SF-Pro-Text-Heavy',
+                    italic: 'SF-Pro-Text-HeavyItalic',
+                },
+                900: {
+                    normal: 'SF-Pro-Text-Black',
+                    italic: 'SF-Pro-Text-BlackItalic',
+                },
+            },
+        },
+        fonts: {
+            heading: 'SF',
+            body: 'SF',
+            mono: 'SF',
+        },
+    });
+
+    return (
+        <NativeBaseProvider theme={appTheme}>
+            <Navigator/>
+        </NativeBaseProvider>
+    );
+}
