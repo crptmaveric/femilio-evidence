@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { StyleSheet } from 'react-native';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
@@ -6,23 +6,24 @@ import { getDatabaseConnection } from '../database';
 import { EditPatientProps, PatientValues } from '../types';
 import PatientForm from '../forms/PatientForm';
 import FeButton from '../components/FeButton';
+import { saveImage, handleSavePatient } from '../utils/patientHelpers';
+
+const validationSchema = Yup.object().shape({
+    firstName: Yup.string().required('Required'),
+    lastName: Yup.string().required('Required'),
+    diagnosis: Yup.string().optional(),
+    street: Yup.string().optional(),
+    city: Yup.string().optional(),
+    postalCode: Yup.string().optional(),
+    country: Yup.string().optional(),
+    birthNumber: Yup.string().required('Required'),
+    doctorId: Yup.number().required('Required'),
+});
 
 const EditPatient = ({ navigation, route }: EditPatientProps) => {
     const [originalValues, setOriginalValues] = useState<PatientValues | null>(null);
     const [isModified, setIsModified] = useState(false);
     const formikRef = useRef(null);
-
-    const validationSchema = Yup.object().shape({
-        firstName: Yup.string().required('Required'),
-        lastName: Yup.string().required('Required'),
-        diagnosis: Yup.string().optional(),
-        street: Yup.string().required('Required'),
-        city: Yup.string().required('Required'),
-        postalCode: Yup.string().required('Required'),
-        country: Yup.string().required('Required'),
-        birthNumber: Yup.string().required('Required'),
-        doctorId: Yup.number().required('Required'),
-    });
 
     useEffect(() => {
         const loadPatientData = async () => {
@@ -52,20 +53,10 @@ const EditPatient = ({ navigation, route }: EditPatientProps) => {
     }, [route.params.patientId]);
 
     const handleSave = async (values: PatientValues) => {
-        if (JSON.stringify(values) !== JSON.stringify(originalValues)) {
-            const db = await getDatabaseConnection();
-            const address = `${values.street}, ${values.city}, ${values.postalCode}, ${values.country}`;
-            await db.executeSql(
-                'UPDATE Patients SET firstName = ?, lastName = ?, diagnosis = ?, address = ?, birthNumber = ?, photo = ?, doctorId = ? WHERE id = ?',
-                [values.firstName, values.lastName, values.diagnosis, address, values.birthNumber, values.photo, values.doctorId, route.params.patientId]
-            );
-            navigation.goBack();
-        }
+        const imagePath = await saveImage(values.photo);
+        await handleSavePatient({ ...values, photo: imagePath }, route.params.patientId);
+        navigation.goBack();
     };
-
-    const checkIfModified = useCallback((values) => {
-        setIsModified(JSON.stringify(values) !== JSON.stringify(originalValues));
-    }, [originalValues]);
 
     useEffect(() => {
         navigation.setOptions({
@@ -73,12 +64,7 @@ const EditPatient = ({ navigation, route }: EditPatientProps) => {
                 <FeButton
                     severity={isModified ? "primary" : "tertiary"}
                     title={'Save'}
-                    onPress={() => {
-                        if (isModified) {
-                            console.log('Save button pressed');
-                            formikRef.current?.submitForm();
-                        }
-                    }}
+                    onPress={() => formikRef.current?.submitForm()}
                     disabled={!isModified}
                 />
             ),
@@ -86,7 +72,7 @@ const EditPatient = ({ navigation, route }: EditPatientProps) => {
     }, [navigation, isModified]);
 
     if (!originalValues) {
-        return null; // or some loading indicator
+        return null;
     }
 
     return (
@@ -95,7 +81,7 @@ const EditPatient = ({ navigation, route }: EditPatientProps) => {
             initialValues={originalValues}
             validationSchema={validationSchema}
             onSubmit={handleSave}
-            validate={checkIfModified}
+            validate={(values) => setIsModified(JSON.stringify(values) !== JSON.stringify(originalValues))}
         >
             {formikProps => (
                 <PatientForm {...formikProps} navigation={navigation} />

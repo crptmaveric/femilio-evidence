@@ -1,5 +1,18 @@
 import {NativeStackScreenProps} from "@react-navigation/native-stack";
-import {PatientValues} from "./screens/AddPatient";
+
+export interface PatientValues {
+    firstName: string;
+    lastName: string;
+    diagnosis?: string;
+    street?: string;
+    city?: string;
+    postalCode?: string;
+    country?: string;
+    birthNumber: string;
+    doctorId: string;
+    photo?: string;
+}
+
 
 export enum Routes {
     AddDoctor = 'AddDoctor',
