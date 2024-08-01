@@ -62,7 +62,7 @@ const EditPatient = ({ navigation, route }: EditPatientProps) => {
         navigation.setOptions({
             headerRight: () => (
                 <FeButton
-                    severity={isModified ? "primary" : "tertiary"}
+                    severity={'tertiary'}
                     title={'Save'}
                     onPress={() => formikRef.current?.submitForm()}
                     disabled={!isModified}
