@@ -1,53 +1,16 @@
-import React, { useEffect, useState, useLayoutEffect, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { StyleSheet } from 'react-native';
-import { Formik, FormikProps } from 'formik';
+import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { getDatabaseConnection } from '../database';
-import { EditPatientProps, Routes } from "../types";
-import { appStyle } from "../theme/AppStyle";
-import { PatientValues } from "./AddPatient";
-import PatientForm from "../forms/PatientForm";
-import FeButton from "../components/FeButton";
+import { EditPatientProps, PatientValues } from '../types';
+import PatientForm from '../forms/PatientForm';
+import FeButton from '../components/FeButton';
 
 const EditPatient = ({ navigation, route }: EditPatientProps) => {
-    const patientId = route.params.patientId;
-    const [initialValues, setInitialValues] = useState<PatientValues>({
-        firstName: '',
-        lastName: '',
-        diagnosis: '',
-        street: '',
-        city: '',
-        postalCode: '',
-        country: '',
-        birthNumber: '',
-        doctorId: '',
-        photo: '',
-    });
-
-    const formikRef = useRef<FormikProps<PatientValues>>(null);
-
-    useEffect(() => {
-        const fetchPatient = async () => {
-            const db = await getDatabaseConnection();
-            const result = await db.executeSql('SELECT * FROM Patients WHERE id = ?', [patientId]);
-            const patient = result[0].rows.item(0);
-            const addressParts = patient.address.split(', ');
-            setInitialValues({
-                firstName: patient.firstName,
-                lastName: patient.lastName,
-                diagnosis: patient.diagnosis,
-                street: addressParts[0],
-                city: addressParts[1],
-                postalCode: addressParts[2],
-                country: addressParts[3],
-                birthNumber: patient.birthNumber,
-                doctorId: patient.doctorId.toString(),
-                photo: patient.photo,
-            });
-        };
-
-        fetchPatient();
-    }, [patientId]);
+    const [originalValues, setOriginalValues] = useState<PatientValues | null>(null);
+    const [isModified, setIsModified] = useState(false);
+    const formikRef = useRef(null);
 
     const validationSchema = Yup.object().shape({
         firstName: Yup.string().required('Required'),
@@ -58,38 +21,81 @@ const EditPatient = ({ navigation, route }: EditPatientProps) => {
         postalCode: Yup.string().required('Required'),
         country: Yup.string().required('Required'),
         birthNumber: Yup.string().required('Required'),
-        doctorId: Yup.number().required('Required')
+        doctorId: Yup.number().required('Required'),
     });
 
-    const handleSavePatient = async (values: PatientValues) => {
-        const db = await getDatabaseConnection();
-        await db.executeSql(
-            'UPDATE Patients SET firstName = ?, lastName = ?, diagnosis = ?, address = ?, birthNumber = ?, photo = ?, doctorId = ? WHERE id = ?',
-            [values.firstName, values.lastName, values.diagnosis, `${values.street}, ${values.city}, ${values.postalCode}, ${values.country}`, values.birthNumber, values.photo, values.doctorId, patientId]
-        );
-        navigation.goBack();
+    useEffect(() => {
+        const loadPatientData = async () => {
+            const db = await getDatabaseConnection();
+            const patientId = route.params.patientId;
+            const results = await db.executeSql('SELECT * FROM Patients WHERE id = ?', [patientId]);
+            if (results[0].rows.length > 0) {
+                const patientData = results[0].rows.item(0);
+                const addressParts = patientData.address.split(', ');
+                const patientValues: PatientValues = {
+                    firstName: patientData.firstName,
+                    lastName: patientData.lastName,
+                    diagnosis: patientData.diagnosis,
+                    street: addressParts[0],
+                    city: addressParts[1],
+                    postalCode: addressParts[2],
+                    country: addressParts[3],
+                    birthNumber: patientData.birthNumber,
+                    doctorId: patientData.doctorId,
+                    photo: patientData.photo,
+                };
+                setOriginalValues(patientValues);
+            }
+        };
+
+        loadPatientData();
+    }, [route.params.patientId]);
+
+    const handleSave = async (values: PatientValues) => {
+        if (JSON.stringify(values) !== JSON.stringify(originalValues)) {
+            const db = await getDatabaseConnection();
+            const address = `${values.street}, ${values.city}, ${values.postalCode}, ${values.country}`;
+            await db.executeSql(
+                'UPDATE Patients SET firstName = ?, lastName = ?, diagnosis = ?, address = ?, birthNumber = ?, photo = ?, doctorId = ? WHERE id = ?',
+                [values.firstName, values.lastName, values.diagnosis, address, values.birthNumber, values.photo, values.doctorId, route.params.patientId]
+            );
+            navigation.goBack();
+        }
     };
 
-    useLayoutEffect(() => {
+    const checkIfModified = useCallback((values) => {
+        setIsModified(JSON.stringify(values) !== JSON.stringify(originalValues));
+    }, [originalValues]);
+
+    useEffect(() => {
         navigation.setOptions({
             headerRight: () => (
                 <FeButton
-                    severity={"tertiary"}
+                    severity={isModified ? "primary" : "tertiary"}
                     title={'Save'}
-                    disabled={!(formikRef.current?.touched)}
-                    onPress={() => formikRef.current?.submitForm()}
+                    onPress={() => {
+                        if (isModified) {
+                            console.log('Save button pressed');
+                            formikRef.current?.submitForm();
+                        }
+                    }}
+                    disabled={!isModified}
                 />
             ),
         });
-    }, [navigation, formikRef.current?.touched]);
+    }, [navigation, isModified]);
+
+    if (!originalValues) {
+        return null; // or some loading indicator
+    }
 
     return (
         <Formik
             innerRef={formikRef}
-            enableReinitialize
-            initialValues={initialValues}
+            initialValues={originalValues}
             validationSchema={validationSchema}
-            onSubmit={handleSavePatient}
+            onSubmit={handleSave}
+            validate={checkIfModified}
         >
             {formikProps => (
                 <PatientForm {...formikProps} navigation={navigation} />
@@ -101,8 +107,6 @@ const EditPatient = ({ navigation, route }: EditPatientProps) => {
 const styles = StyleSheet.create({
     formContainer: {
         flex: 1,
-        gap: appStyle.spacing.m,
-        justifyContent: 'flex-start',
         padding: 16,
     },
 });
