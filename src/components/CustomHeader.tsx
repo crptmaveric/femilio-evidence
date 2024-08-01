@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import FeButton from "./FeButton";
 
 interface CustomHeaderProps {
     title: string;
@@ -11,13 +12,9 @@ interface CustomHeaderProps {
 const CustomHeader: React.FC<CustomHeaderProps> = ({ title, onCancel, onSave, isModified }) => {
     return (
         <View style={styles.headerContainer}>
-            <TouchableOpacity onPress={onCancel}>
-                <Text style={styles.cancelButton}>Cancel</Text>
-            </TouchableOpacity>
+            <FeButton severity={'tertiary'} onPress={onCancel} title={'Close'}/>
             <Text style={styles.title}>{title}</Text>
-            <TouchableOpacity onPress={onSave} disabled={!isModified}>
-                <Text style={[styles.saveButton, !isModified && styles.disabledSave]}>Save</Text>
-            </TouchableOpacity>
+            <FeButton severity={'primary'} onPress={onSave} title={'Save'} disabled={!isModified} />
         </View>
     );
 };
@@ -27,7 +24,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingVertical: 10,
+        paddingVertical: 2,
         paddingHorizontal: 16,
         backgroundColor: 'transparent',
     },
