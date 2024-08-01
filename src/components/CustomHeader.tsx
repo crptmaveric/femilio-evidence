@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import FeButton from "./FeButton";
 
 interface CustomHeaderProps {
@@ -7,14 +7,17 @@ interface CustomHeaderProps {
     onCancel: () => void;
     onSave: () => void;
     isModified: boolean;
+    cancelTitle: string,
+    saveTitle: string,
+    actionSeverity?: 'primary' | 'secondary' | 'tertiary',
 }
 
-const CustomHeader: React.FC<CustomHeaderProps> = ({ title, onCancel, onSave, isModified }) => {
+const CustomHeader: React.FC<CustomHeaderProps> = ({ title, onCancel, onSave, isModified, saveTitle, cancelTitle,actionSeverity }) => {
     return (
         <View style={styles.headerContainer}>
-            <FeButton severity={'tertiary'} onPress={onCancel} title={'Close'}/>
+            <FeButton severity={'tertiary'} onPress={onCancel} title={cancelTitle} />
             <Text style={styles.title}>{title}</Text>
-            <FeButton severity={'primary'} onPress={onSave} title={'Save'} disabled={!isModified} />
+            <FeButton severity={actionSeverity} onPress={onSave} title={saveTitle} disabled={!isModified} size={'small'}/>
         </View>
     );
 };

@@ -4,6 +4,7 @@ import { PatientValues } from '../types';
 
 export const saveImage = async (photoPath: string): Promise<string | null> => {
     if (!photoPath) {
+        console.log("Error: Photo path is null or empty.");
         return null;
     }
 
@@ -26,17 +27,25 @@ export const saveImage = async (photoPath: string): Promise<string | null> => {
 };
 
 export const handleSavePatient = async (values: PatientValues, patientId?: string) => {
-    const db = await getDatabaseConnection();
-    const address = `${values.street}, ${values.city}, ${values.postalCode}, ${values.country}`;
-    if (patientId) {
-        await db.executeSql(
-            'UPDATE Patients SET firstName = ?, lastName = ?, diagnosis = ?, address = ?, birthNumber = ?, photo = ?, doctorId = ? WHERE id = ?',
-            [values.firstName, values.lastName, values.diagnosis, address, values.birthNumber, values.photo, values.doctorId, patientId]
-        );
-    } else {
-        await db.executeSql(
-            'INSERT INTO Patients (firstName, lastName, diagnosis, address, birthNumber, photo, doctorId) VALUES (?, ?, ?, ?, ?, ?, ?)',
-            [values.firstName, values.lastName, values.diagnosis, address, values.birthNumber, values.photo, values.doctorId]
-        );
+    try {
+        const db = await getDatabaseConnection();
+        const address = `${values.street}, ${values.city}, ${values.postalCode}, ${values.country}`;
+
+        if (patientId) {
+            await db.executeSql(
+                'UPDATE Patients SET firstName = ?, lastName = ?, diagnosis = ?, address = ?, birthNumber = ?, photo = ?, doctorId = ? WHERE id = ?',
+                [values.firstName, values.lastName, values.diagnosis, address, values.birthNumber, values.photo, values.doctorId, patientId]
+            );
+        } else {
+            await db.executeSql(
+                'INSERT INTO Patients (firstName, lastName, diagnosis, address, birthNumber, photo, doctorId) VALUES (?, ?, ?, ?, ?, ?, ?)',
+                [values.firstName, values.lastName, values.diagnosis, address, values.birthNumber, values.photo, values.doctorId]
+            );
+        }
+
+        console.log("Patient data saved successfully.");
+    } catch (error) {
+        console.error("Error saving patient data: ", error);
+        throw new Error("Failed to save patient data. Please try again.");
     }
 };

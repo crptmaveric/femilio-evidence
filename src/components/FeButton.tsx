@@ -5,10 +5,11 @@ import {appStyle} from "../theme/AppStyle";
 
 interface FeButtonProps extends ButtonProps {
     severity: 'primary' | 'secondary' | 'tertiary' | 'danger';
+    size?: 'small' | 'medium' | 'large';
 }
 
 const FeButton = (props: FeButtonProps) => {
-    const {severity, ...restProps} = props;
+    const {severity,size, ...restProps} = props;
 
     const getButtonStyle = () => {
         switch (severity) {
@@ -22,6 +23,19 @@ const FeButton = (props: FeButtonProps) => {
                 return styles.danger;
             default:
                 return styles.primary;
+        }
+    };
+
+    const getButtonSizeStyle = () => {
+        switch (size) {
+            case 'small':
+                return styles.small;
+            case 'medium':
+                return styles.medium;
+            case 'large':
+                return styles.large;
+            default:
+                return styles.medium;
         }
     };
 
@@ -50,7 +64,7 @@ const FeButton = (props: FeButtonProps) => {
             // fontWeight={'semibold'}
             iconContainerStyle={styles.icon}
             titleStyle={getTitleStyle()}
-            buttonStyle={getButtonStyle()}
+            buttonStyle={[styles.container, getButtonStyle(), getButtonSizeStyle()]}
         />
     );
 };
@@ -59,29 +73,37 @@ const styles = StyleSheet.create({
     icon: {
         margin: appStyle.spacing.s,
     },
+    container: {
+        paddingVertical: 14,
+        paddingHorizontal: appStyle.spacing.m,
+    },
     primary: {
         backgroundColor: appStyle.colors.primary['400'],
-        paddingVertical: 14,
-        paddingHorizontal: 8,
         borderRadius: 12,
     },
     secondary: {
         backgroundColor: appStyle.colors.primary['50'],
         color: appStyle.colors.primary['400'],
-        paddingVertical: 14,
-        paddingHorizontal: 8,
         borderRadius: 12,
     },
     link: {
         backgroundColor: 'transparent',
-        paddingVertical: 14,
-        paddingHorizontal: 8,
+        // paddingVertical: 0,
+        paddingHorizontal: 0,
     },
     danger: {
         backgroundColor: appStyle.colors.danger['500'],
-        paddingVertical: 14,
-        paddingHorizontal: 8,
         borderRadius: 12,
+    },
+    small: {
+        borderRadius: 24,
+        paddingVertical: appStyle.spacing.s,
+    },
+    medium: {
+
+    },
+    large: {
+
     },
     title_primary: {
         color: 'white',

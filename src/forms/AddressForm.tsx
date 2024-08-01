@@ -1,21 +1,28 @@
-import React from 'react';
-import { View, StyleSheet, Text } from 'react-native';
+import React, {useEffect} from 'react';
+import {View, StyleSheet, Alert, SafeAreaView} from 'react-native';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import FeTextInput from "../components/FeTextInput";
 import FeButton from "../components/FeButton";
 import { appStyle } from "../theme/AppStyle";
 import { ListItem } from "react-native-elements";
+import CustomHeader from '../components/CustomHeader'; // Pridanie importu pre vlastnú hlavičku
 
 const AddressForm = ({ navigation, route }) => {
     const { values, handleChange } = route.params;
 
     const validationSchema = Yup.object().shape({
-        street: Yup.string().required('Required'),
-        city: Yup.string().required('Required'),
-        postalCode: Yup.string().required('Required'),
-        country: Yup.string().required('Required')
+        street: Yup.string().optional(),
+        city: Yup.string().optional(),
+        postalCode: Yup.string().optional(),
+        country: Yup.string().optional()
     });
+
+    useEffect(() => {
+        navigation.setOptions({
+            headerShown: false,
+        });
+    }, [navigation]);
 
     const handleSaveAddress = async (addressValues) => {
         handleChange('street')(addressValues.street);
@@ -25,14 +32,40 @@ const AddressForm = ({ navigation, route }) => {
         navigation.goBack();
     };
 
+    const handleCancel = (dirty) => {
+        if (dirty) {
+            Alert.alert(
+                'Discard changes?',
+                'You have unsaved changes. Are you sure you want to discard them and leave the screen?',
+                [
+                    { text: 'Cancel', style: 'cancel' },
+                    { text: 'Discard', style: 'destructive', onPress: () => navigation.goBack() },
+                ]
+            );
+        } else {
+            navigation.goBack();
+        }
+    };
+
     return (
         <Formik
             initialValues={values}
             validationSchema={validationSchema}
             onSubmit={handleSaveAddress}
         >
-            {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
+            {({ handleChange, handleBlur, handleSubmit, values, errors, touched, dirty }) => (
+               <SafeAreaView style={{flex: 1}}>
+                   <CustomHeader
+                       cancelTitle={'Back'}
+                       saveTitle={'Update'}
+                       title="Edit Address"
+                       onCancel={() => handleCancel(dirty)}
+                       onSave={handleSubmit}
+                       isModified={dirty}
+                       actionSeverity={'secondary'}
+                   />
                 <View style={styles.formContainer}>
+
                     <View style={styles.formGroup}>
                         <ListItem bottomDivider containerStyle={styles.listItem}>
                             <ListItem.Content>
@@ -87,8 +120,8 @@ const AddressForm = ({ navigation, route }) => {
                             />
                         </ListItem>
                     </View>
-                    <FeButton severity={'primary'} onPress={handleSubmit as any} title="Save Address" />
                 </View>
+               </SafeAreaView>
             )}
         </Formik>
     );

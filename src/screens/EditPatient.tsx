@@ -92,8 +92,10 @@ const EditPatient = ({ navigation, route }: EditPatientProps) => {
             validate={(values) => setIsModified(JSON.stringify(values) !== JSON.stringify(originalValues))}
         >
             {formikProps => (
-                <SafeAreaView style={{ flex: 1 }}>
+                <SafeAreaView style={{ flex: 1}}>
                     <CustomHeader
+                        cancelTitle={'Close'}
+                        saveTitle={'Save'}
                         title=""
                         onCancel={() => handleCancel(formikProps.dirty)}
                         onSave={formikProps.handleSubmit}

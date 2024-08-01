@@ -44,7 +44,7 @@ const FeTextInput = (props: FeTextInputProps) => {
                 borderRadius={type === 'single' ? appStyle.radius.s : 0}
                 multiline={multiline}
                 placeholderTextColor={error ? 'red' : appStyle.colors.labels.secondary}
-                style={[getVariantStyles(), getTypeStyles()]}
+                style={[getVariantStyles(), getTypeStyles(), multiline && styles.multiline]}
             />
         </>
     );
@@ -74,6 +74,9 @@ const styles = StyleSheet.create({
         backgroundColor: 'transparent',
         width: 160,
     },
+    multiline: {
+        minHeight: 150,
+    }
 
 });
 

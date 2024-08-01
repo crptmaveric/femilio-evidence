@@ -148,7 +148,6 @@ const PatientForm: React.FC<PatientFormProps> = ({
                         <ListItem.Chevron/>
                     </ListItem>
                 </View>
-                {/*<FeButton severity={'primary'} onPress={handleSubmit as any} title="Save Patient"/>*/}
             </View>
         </ScrollView>
     );

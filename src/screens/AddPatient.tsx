@@ -20,8 +20,9 @@ const validationSchema = Yup.object().shape({
     doctorId: Yup.number().required('Required')
 });
 
-const AddPatient = ({ navigation }: AddPatientProps) => {
+const AddPatient = ({ navigation, route }: AddPatientProps) => {
     const formikRef = React.useRef(null);
+    const doctorId = route.params.doctorId;
 
     useEffect(() => {
         navigation.setOptions({
@@ -62,7 +63,7 @@ const AddPatient = ({ navigation }: AddPatientProps) => {
                 postalCode: '',
                 country: '',
                 birthNumber: '',
-                doctorId: '',
+                doctorId: doctorId,
                 photo: '',
             } as PatientValues}
             validationSchema={validationSchema}
@@ -71,6 +72,8 @@ const AddPatient = ({ navigation }: AddPatientProps) => {
             {formikProps => (
                 <SafeAreaView style={{ flex: 1 }}>
                     <CustomHeader
+                        cancelTitle={'Close'}
+                        saveTitle={'Save'}
                         title=""
                         onCancel={() => handleCancel(formikProps.dirty)}
                         onSave={formikProps.handleSubmit}
