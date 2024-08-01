@@ -1,13 +1,12 @@
-import React from 'react';
-import { StyleSheet } from 'react-native';
+import React, {useEffect} from 'react';
+import {StyleSheet, Alert, View, SafeAreaView} from 'react-native';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { AddPatientProps } from "../types";
-import { appStyle } from "../theme/AppStyle";
 import PatientForm from "../forms/PatientForm";
-import FeButton from "../components/FeButton";
 import { saveImage, handleSavePatient } from '../utils/patientHelpers';
 import { PatientValues } from '../types';
+import CustomHeader from '../components/CustomHeader';
 
 const validationSchema = Yup.object().shape({
     firstName: Yup.string().required('Required'),
@@ -22,6 +21,29 @@ const validationSchema = Yup.object().shape({
 });
 
 const AddPatient = ({ navigation }: AddPatientProps) => {
+    const formikRef = React.useRef(null);
+
+    useEffect(() => {
+        navigation.setOptions({
+            headerShown: false,
+        });
+    }, [navigation]);
+
+    const handleCancel = (dirty) => {
+        if (dirty) {
+            Alert.alert(
+                'Discard changes?',
+                'You have unsaved changes. Are you sure you want to discard them and leave the screen?',
+                [
+                    { text: 'Cancel', style: 'cancel' },
+                    { text: 'Discard', style: 'destructive', onPress: () => navigation.goBack() },
+                ]
+            );
+        } else {
+            navigation.goBack();
+        }
+    };
+
     const handleSave = async (values: PatientValues) => {
         const imagePath = await saveImage(values.photo);
         await handleSavePatient({ ...values, photo: imagePath });
@@ -30,6 +52,7 @@ const AddPatient = ({ navigation }: AddPatientProps) => {
 
     return (
         <Formik
+            innerRef={formikRef}
             initialValues={{
                 firstName: '',
                 lastName: '',
@@ -46,7 +69,15 @@ const AddPatient = ({ navigation }: AddPatientProps) => {
             onSubmit={handleSave}
         >
             {formikProps => (
-                <PatientForm {...formikProps} navigation={navigation} />
+                <SafeAreaView style={{ flex: 1 }}>
+                    <CustomHeader
+                        title=""
+                        onCancel={() => handleCancel(formikProps.dirty)}
+                        onSave={formikProps.handleSubmit}
+                        isModified={formikProps.dirty}
+                    />
+                    <PatientForm {...formikProps} navigation={navigation} />
+                </SafeAreaView>
             )}
         </Formik>
     );
