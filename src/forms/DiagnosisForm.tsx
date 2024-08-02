@@ -52,12 +52,9 @@ const DiagnosisForm = ({ navigation, route }) => {
                 <SafeAreaView style={{flex: 1}}>
                     <CustomHeader
                         cancelTitle={'Back'}
-                        saveTitle={'Update'}
-                        title="Edit Diagnosis"
-                        onCancel={() => handleCancel(dirty)}
-                        onSave={handleSubmit}
+                        title="Diagnosis"
+                        onCancel={handleSubmit}
                         isModified={dirty}
-                        actionSeverity={'secondary'}
                     />
                     <View style={styles.formContainer}>
                         <Text style={styles.heading}>Diagnosis</Text>

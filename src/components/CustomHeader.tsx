@@ -4,20 +4,36 @@ import FeButton from "./FeButton";
 
 interface CustomHeaderProps {
     title: string;
-    onCancel: () => void;
-    onSave: () => void;
-    isModified: boolean;
-    cancelTitle: string,
-    saveTitle: string,
-    actionSeverity?: 'primary' | 'secondary' | 'tertiary',
+    onCancel?: () => void;
+    onSave?: () => void;
+    isModified?: boolean;
+    cancelTitle?: string;
+    saveTitle?: string;
+    actionSeverity?: 'primary' | 'secondary' | 'tertiary';
 }
 
-const CustomHeader: React.FC<CustomHeaderProps> = ({ title, onCancel, onSave, isModified, saveTitle, cancelTitle,actionSeverity }) => {
+const CustomHeader: React.FC<CustomHeaderProps> = ({
+                                                       title,
+                                                       onCancel,
+                                                       onSave,
+                                                       isModified = false,
+                                                       saveTitle = 'Save',
+                                                       cancelTitle = 'Cancel',
+                                                       actionSeverity = 'primary'
+                                                   }) => {
     return (
         <View style={styles.headerContainer}>
-            <FeButton severity={'tertiary'} onPress={onCancel} title={cancelTitle} />
+            <View style={[styles.sideContainer, styles.leftSideContainer]}>
+                {onCancel && (
+                    <FeButton severity={'tertiary'} onPress={onCancel} title={cancelTitle} />
+                )}
+            </View>
             <Text style={styles.title}>{title}</Text>
-            <FeButton severity={actionSeverity} onPress={onSave} title={saveTitle} disabled={!isModified} size={'small'}/>
+            <View style={styles.sideContainer}>
+                {onSave && (
+                    <FeButton severity={actionSeverity} onPress={onSave} title={saveTitle} disabled={!isModified} size={'small'} />
+                )}
+            </View>
         </View>
     );
 };
@@ -27,25 +43,22 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingVertical: 2,
+        paddingVertical: 0,
         paddingHorizontal: 16,
-        backgroundColor: 'transparent',
+        position: 'relative',
     },
     title: {
+        position: 'absolute',
+        left: '44%',
         fontSize: 18,
         fontWeight: 'bold',
     },
-    cancelButton: {
-        color: '#007bff',
-        fontSize: 16,
+    sideContainer: {
+        width: '25%', // rezervujeme miesto na tlačidlo
     },
-    saveButton: {
-        color: '#007bff',
-        fontSize: 16,
-    },
-    disabledSave: {
-        color: '#aaa',
-    },
+    leftSideContainer: {
+        flexDirection: 'row',
+    }
 });
 
 export default CustomHeader;

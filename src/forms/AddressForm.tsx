@@ -57,12 +57,9 @@ const AddressForm = ({ navigation, route }) => {
                <SafeAreaView style={{flex: 1}}>
                    <CustomHeader
                        cancelTitle={'Back'}
-                       saveTitle={'Update'}
-                       title="Edit Address"
-                       onCancel={() => handleCancel(dirty)}
-                       onSave={handleSubmit}
+                       title="Address"
+                       onCancel={handleSubmit}
                        isModified={dirty}
-                       actionSeverity={'secondary'}
                    />
                 <View style={styles.formContainer}>
 
