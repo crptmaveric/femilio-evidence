@@ -1,5 +1,5 @@
 import React, {useEffect} from 'react';
-import {View, StyleSheet} from 'react-native';
+import {View, StyleSheet, ActionSheetIOS} from 'react-native';
 import {FormikProps} from 'formik';
 import {ListItem, Avatar} from 'react-native-elements';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
@@ -56,7 +56,7 @@ const PatientForm: React.FC<PatientFormProps> = ({
     };
 
     const handleTakePhoto = () => {
-        launchCamera({ mediaType: 'photo', quality: 1, includeBase64: true }, async (response) => {
+        launchCamera({ mediaType: 'photo', quality: 1, includeBase64: true , presentationStyle: 'fullScreen'}, async (response) => {
             if (response.didCancel) {
                 console.log('User cancelled camera');
             } else if (response.errorCode) {
@@ -74,6 +74,22 @@ const PatientForm: React.FC<PatientFormProps> = ({
         });
     };
 
+    const showActionSheet = () => {
+        ActionSheetIOS.showActionSheetWithOptions(
+            {
+                options: ['Cancel', 'Take Photo', 'Choose Photo'],
+                cancelButtonIndex: 0,
+            },
+            (buttonIndex) => {
+                if (buttonIndex === 1) {
+                    handleTakePhoto();
+                } else if (buttonIndex === 2) {
+                    handleChoosePhoto();
+                }
+            }
+        );
+    };
+
     return (
         <ScrollView>
             <View style={styles.formContainer}>
@@ -85,9 +101,7 @@ const PatientForm: React.FC<PatientFormProps> = ({
                         :
                         <Avatar size={'xlarge'} rounded={true}
                                 containerStyle={{backgroundColor: appStyle.colors.primary[50]}}/>}
-
-                    <FeButton title="Choose Photo" onPress={handleChoosePhoto} severity="secondary"/>
-                    <FeButton title="Take Photo" onPress={handleTakePhoto} severity="secondary"/>
+                    <FeButton title="Add Photo" onPress={showActionSheet} severity="secondary"/>
                 </View>
                 <View style={styles.formGroup}>
                     <ListItem bottomDivider containerStyle={styles.listItem}>
