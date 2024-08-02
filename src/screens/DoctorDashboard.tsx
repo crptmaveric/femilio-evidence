@@ -8,6 +8,9 @@ import {appStyle} from '../theme/AppStyle';
 import {Pressable} from "native-base";
 import {useFocusEffect} from '@react-navigation/native';
 import {DoctorDashboardProps, Routes} from "../types";
+import MMKVStorage from "react-native-mmkv-storage";
+
+const MMKV = new MMKVStorage.Loader().initialize();
 
 const DoctorDashboard = ({navigation, route}: DoctorDashboardProps) => {
     const [patients, setPatients] = useState([]);
@@ -45,6 +48,12 @@ const DoctorDashboard = ({navigation, route}: DoctorDashboardProps) => {
         const results = await db.executeSql('SELECT * FROM Patients');
         let patients = results[0].rows.raw();
         patients = patients.sort((a, b) => a.lastName.localeCompare(b.lastName));
+
+        patients = patients.map(patient => ({
+            ...patient,
+            photo: patient.photo ? MMKV.getString(patient.photo) : null // Retrieve the base64 string from MMKV
+        }));
+
         setPatients(patients);
         setFilteredPatients(patients);
     };
@@ -108,7 +117,7 @@ const DoctorDashboard = ({navigation, route}: DoctorDashboardProps) => {
                                     {patient.photo ? (
                                         <Avatar
                                             rounded
-                                            source={{uri: patient.photo}}
+                                            source={{ uri: `data:image/jpeg;base64,${patient.photo}` }}
                                             title={patient.firstName[0] + patient.lastName[0]}
                                             size="medium"
                                         />

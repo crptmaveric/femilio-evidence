@@ -1,18 +1,21 @@
 import React, {useEffect} from 'react';
-import {View, StyleSheet, Image, Alert} from 'react-native';
+import {View, StyleSheet} from 'react-native';
 import {FormikProps} from 'formik';
-import {ListItem, Icon, Avatar} from 'react-native-elements';
-import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
+import {ListItem, Avatar} from 'react-native-elements';
+import {launchImageLibrary} from 'react-native-image-picker';
 import {appStyle} from "../theme/AppStyle";
 import {Routes} from "../types";
 import FeTextInput from "../components/FeTextInput";
 import FeButton from "../components/FeButton";
-import app from "react-native/template/App";
 import {ScrollView} from "native-base";
+import {saveImage} from "../utils/patientHelpers";
+import MMKVStorage from "react-native-mmkv-storage";
 
 export interface PatientFormProps extends FormikProps<any> {
     navigation: any;
 }
+
+const MMKV = new MMKVStorage.Loader().initialize();
 
 const PatientForm: React.FC<PatientFormProps> = ({
                                                      handleChange,
@@ -27,42 +30,46 @@ const PatientForm: React.FC<PatientFormProps> = ({
 
 
     useEffect(() => {
-        if(values.photo){
-            setPhotoUri(values.photo);
+        if (values.photo) {
+            const base64Image = MMKV.getString(values.photo);
+            setPhotoUri(`data:image/jpeg;base64,${base64Image}`);
         }
     }, [values.photo]);
 
     const handleChoosePhoto = () => {
-        launchImageLibrary({mediaType: 'photo', quality: 1}, (response) => {
+        launchImageLibrary({ mediaType: 'photo', quality: 1, includeBase64: true }, async (response) => {
             if (response.didCancel) {
                 console.log('User cancelled image picker');
             } else if (response.errorCode) {
                 console.log('ImagePicker Error: ', response.errorMessage);
             } else {
-                const uri = response.assets ? response.assets[0].uri : null;
-                if (uri) {
-                    setPhotoUri(uri);
-                    handleChange('photo')(uri);
+                const base64Image = response.assets ? response.assets[0].base64 : null;
+                if (base64Image) {
+                    const imageKey = await saveImage(base64Image);
+                    if (imageKey) {
+                        handleChange('photo')(imageKey);
+                        setPhotoUri(`data:image/jpeg;base64,${base64Image}`);
+                    }
                 }
             }
         });
     };
 
-    const handleTakePhoto = () => {
-        launchCamera({mediaType: 'photo', quality: 1}, (response) => {
-            if (response.didCancel) {
-                console.log('User cancelled camera');
-            } else if (response.errorCode) {
-                console.log('Camera Error: ', response.errorMessage);
-            } else {
-                const uri = response.assets ? response.assets[0].uri : null;
-                if (uri) {
-                    setPhotoUri(uri);
-                    handleChange('photo')(uri);
-                }
-            }
-        });
-    };
+    // const handleTakePhoto = () => {
+    //     launchCamera({mediaType: 'photo', quality: 1}, (response) => {
+    //         if (response.didCancel) {
+    //             console.log('User cancelled camera');
+    //         } else if (response.errorCode) {
+    //             console.log('Camera Error: ', response.errorMessage);
+    //         } else {
+    //             const uri = response.assets ? response.assets[0].uri : null;
+    //             if (uri) {
+    //                 setPhotoUri(uri);
+    //                 handleChange('photo')(uri);
+    //             }
+    //         }
+    //     });
+    // };
 
     return (
         <ScrollView>
@@ -70,7 +77,8 @@ const PatientForm: React.FC<PatientFormProps> = ({
                 <View style={styles.avatarContainer}>
                     {photoUri ?
                         <Avatar size={'xlarge'} rounded={true}
-                                source={{uri: photoUri}}/>
+                                source={{uri: photoUri}}
+                        />
                         :
                         <Avatar size={'xlarge'} rounded={true}
                                 containerStyle={{backgroundColor: appStyle.colors.primary[50]}}/>}
