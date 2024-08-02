@@ -174,6 +174,9 @@ const PatientForm: React.FC<PatientFormProps> = ({
                         <ListItem.Chevron/>
                     </ListItem>
                 </View>
+                <View style={styles.formGroup}>
+                    <FeButton title="View Gallery" onPress={() => navigation.navigate(Routes.GalleryScreen)} severity="secondary" />
+                </View>
             </View>
         </ScrollView>
     );

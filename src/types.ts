@@ -26,6 +26,7 @@ export enum Routes {
     InitialScreen = 'InitialScreen',
     AddressForm = 'AddressForm',
     DiagnosisForm = 'DiagnosisForm',
+    GalleryScreen = 'GalleryScreen',
 }
 
 export type RootStackParamList = {
@@ -64,6 +65,9 @@ export type RootStackParamList = {
     [Routes.DiagnosisForm]: {
         values: PatientValues
         handleChange: any,
+    };
+    [Routes.GalleryScreen]: {
+
     };
 };
 
@@ -120,5 +124,10 @@ export type AddressFormProps = NativeStackScreenProps<
 export type DiagnosisFormProps = NativeStackScreenProps<
     RootStackParamList,
     Routes.DiagnosisForm
+>;
+
+export type GalleryScreenProps = NativeStackScreenProps<
+    RootStackParamList,
+    Routes.GalleryScreen
 >;
 

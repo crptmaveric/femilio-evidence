@@ -16,6 +16,7 @@ import { ActivityIndicator, StyleSheet, View } from "react-native";
 import InitialScreen from "./src/screens/InitialScreen";
 import AddressForm from "./src/forms/AddressForm";
 import DiagnosisForm from "./src/forms/DiagnosisForm";
+import GalleryScreen from "./src/screens/GalleryScreen";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -45,6 +46,7 @@ const AppNavigator = () => {
                 <Stack.Screen name={Routes.DoctorDashboard} component={DoctorDashboard} />
                 <Stack.Screen name={Routes.EditDoctor} component={EditDoctor} />
                 <Stack.Screen name={Routes.EditPatient} component={EditPatient} />
+                <Stack.Screen name={Routes.GalleryScreen} component={GalleryScreen} />
             </Stack.Navigator>
         </NavigationContainer>
     );
