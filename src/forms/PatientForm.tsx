@@ -100,7 +100,7 @@ const PatientForm: React.FC<PatientFormProps> = ({
                         />
                         :
                         <Avatar size={'xlarge'} rounded={true}
-                                containerStyle={{backgroundColor: appStyle.colors.primary[50]}}/>}
+                                containerStyle={{backgroundColor: appStyle.colors.primary[50]}} />}
                     <FeButton title="Add Photo" onPress={showActionSheet} severity="secondary"/>
                 </View>
                 <View style={styles.formGroup}>
