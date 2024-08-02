@@ -2,7 +2,7 @@ import React, {useEffect} from 'react';
 import {View, StyleSheet} from 'react-native';
 import {FormikProps} from 'formik';
 import {ListItem, Avatar} from 'react-native-elements';
-import {launchImageLibrary} from 'react-native-image-picker';
+import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import {appStyle} from "../theme/AppStyle";
 import {Routes} from "../types";
 import FeTextInput from "../components/FeTextInput";
@@ -55,21 +55,24 @@ const PatientForm: React.FC<PatientFormProps> = ({
         });
     };
 
-    // const handleTakePhoto = () => {
-    //     launchCamera({mediaType: 'photo', quality: 1}, (response) => {
-    //         if (response.didCancel) {
-    //             console.log('User cancelled camera');
-    //         } else if (response.errorCode) {
-    //             console.log('Camera Error: ', response.errorMessage);
-    //         } else {
-    //             const uri = response.assets ? response.assets[0].uri : null;
-    //             if (uri) {
-    //                 setPhotoUri(uri);
-    //                 handleChange('photo')(uri);
-    //             }
-    //         }
-    //     });
-    // };
+    const handleTakePhoto = () => {
+        launchCamera({ mediaType: 'photo', quality: 1, includeBase64: true }, async (response) => {
+            if (response.didCancel) {
+                console.log('User cancelled camera');
+            } else if (response.errorCode) {
+                console.log('Camera Error: ', response.errorMessage);
+            } else {
+                const base64Image = response.assets ? response.assets[0].base64 : null;
+                if (base64Image) {
+                    const imageKey = await saveImage(base64Image);
+                    if (imageKey) {
+                        handleChange('photo')(imageKey);
+                        setPhotoUri(`data:image/jpeg;base64,${base64Image}`);
+                    }
+                }
+            }
+        });
+    };
 
     return (
         <ScrollView>
@@ -84,6 +87,7 @@ const PatientForm: React.FC<PatientFormProps> = ({
                                 containerStyle={{backgroundColor: appStyle.colors.primary[50]}}/>}
 
                     <FeButton title="Choose Photo" onPress={handleChoosePhoto} severity="secondary"/>
+                    <FeButton title="Take Photo" onPress={handleTakePhoto} severity="secondary"/>
                 </View>
                 <View style={styles.formGroup}>
                     <ListItem bottomDivider containerStyle={styles.listItem}>

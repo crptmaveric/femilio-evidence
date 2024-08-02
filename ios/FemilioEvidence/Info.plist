@@ -68,5 +68,12 @@
 		<string>SF-Pro-Text-Ultralight.otf</string>
 		<string>SF-Pro-Text-UltralightItalic.otf</string>
 	</array>
+  <key>NSPhotoLibraryUsageDescription</key>
+  <string>We need access to your photo library to select and upload images.</string>
+  <key>NSCameraUsageDescription</key>
+  <string>We need access to your camera to take photos for your profile.</string>
+  <key>NSMicrophoneUsageDescription</key>
+  <string>We need access to your microphone to capture audio while recording videos.</string>
+
 </dict>
 </plist>
