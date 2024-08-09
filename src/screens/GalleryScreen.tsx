@@ -2,10 +2,6 @@ import React, { useEffect, useState, useRef, useCallback } from 'react';
 import {
     View,
     StyleSheet,
-    Button,
-    Image,
-    ScrollView,
-    Alert,
     StatusBar,
     Text,
     TouchableOpacity,
@@ -19,17 +15,25 @@ import RNFS from 'react-native-fs2';
 import Animated, { FadeInDown, FadeInUp, FadeOutDown, FadeOutUp } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import FastImage from "react-native-fast-image";
+import {GalleryScreenProps} from "../types";
+import FeButton from "../components/FeButton";
+import CustomHeader from "../components/CustomHeader";
+import {appStyle} from "../theme/AppStyle";
+import {Icon} from "react-native-elements";
 
 const MMKV = new MMKVStorage.Loader().initialize();
 
-const GalleryScreen = ({ navigation }) => {
+const GalleryScreen = ({ navigation, route } : GalleryScreenProps) => {
     const [photos, setPhotos] = useState<string[]>([]);
     const [fileUris, setFileUris] = useState<string[]>([]);
     const gallery = useRef<GalleryRef>(null);
     const { top, bottom } = useSafeAreaInsets();
     const [mounted, setMounted] = useState(false);
+    const [photoIndex, setPhotoIndex] = useState(0);
+    const [empty, setEmpty] = useState(false);
     const [infoVisible, setInfoVisible] = useState(true);
     const isFocused = useIsFocused();
+    const patientId = route.params.patientId;
 
     useEffect(() => {
         navigation.setOptions({
@@ -39,22 +43,25 @@ const GalleryScreen = ({ navigation }) => {
 
     useEffect(() => {
         if (isFocused) {
-            const storedPhotos = MMKV.getString('photos');
+            const storedPhotos = MMKV.getString(`photos_${patientId}`);
             if (storedPhotos) {
                 const parsedPhotos = JSON.parse(storedPhotos);
                 // console.log('Stored Photos:', parsedPhotos); // Log the stored photos
                 setPhotos(parsedPhotos);
                 convertBase64ToFileUris(parsedPhotos).then(r => {
                     setMounted(true);
+                    setEmpty(false);
                 });
-
+            } else {
+                setMounted(true);
+                setEmpty(true);
             }
         }
-    }, [isFocused]);
+    }, [isFocused, empty]);
 
     const convertBase64ToFileUris = async (base64Photos: string[]) => {
         const uris = await Promise.all(base64Photos.map(async (base64, index) => {
-            const path = `${RNFS.DocumentDirectoryPath}/photo_${index}.jpg`;
+            const path = `${RNFS.DocumentDirectoryPath}/photo_${patientId}_${index}.jpg`;
             await RNFS.writeFile(path, base64.split(',')[1], 'base64');
             // Verify file existence
             const exists = await RNFS.exists(path);
@@ -69,9 +76,13 @@ const GalleryScreen = ({ navigation }) => {
     };
 
     const savePhotos = async (newPhotos: string[]) => {
-        MMKV.setString('photos', JSON.stringify(newPhotos));
+        MMKV.setString(`photos_${patientId}`, JSON.stringify(newPhotos));
         setPhotos(newPhotos);
-        await convertBase64ToFileUris(newPhotos);
+        convertBase64ToFileUris(newPhotos).then(() => {
+            if (gallery.current) {
+                gallery.current.setIndex(newPhotos.length - 1, true); // Scroll to the last photo
+            }
+        });
     };
 
     const handleChoosePhoto = () => {
@@ -79,15 +90,17 @@ const GalleryScreen = ({ navigation }) => {
             if (response.assets) {
                 const newPhotos = response.assets.map(asset => `data:image/jpeg;base64,${asset.base64}`);
                 savePhotos([...photos, ...newPhotos]);
+                setEmpty(false);
             }
         });
     };
 
     const handleTakePhoto = () => {
-        launchCamera({ mediaType: 'photo', includeBase64: true }, (response) => {
+        launchCamera({ mediaType: 'photo', includeBase64: true , presentationStyle: "fullScreen"}, (response) => {
             if (response.assets) {
                 const newPhotos = response.assets.map(asset => `data:image/jpeg;base64,${asset.base64}`);
                 savePhotos([...photos, ...newPhotos]);
+                setEmpty(false);
             }
         });
     };
@@ -115,32 +128,32 @@ const GalleryScreen = ({ navigation }) => {
                         },
                     ]}
                 >
-                    <View style={styles.textContainer}>
-                        <Text style={styles.headerText}>{photos.length} Photos</Text>
-                    </View>
+                    <CustomHeader title={`${photoIndex + 1} of ${photos.length} Photos`} showBack={true} onCancel={() => navigation.goBack()} iconOnly={true}/>
                 </Animated.View>
             )}
-            <View>
+            <View style={{marginTop: '-17%'}}>
                 <Gallery
                     ref={gallery}
+                    style={{}}
                     data={fileUris.map((uri) => ({ uri }))}
                     keyExtractor={(item) => item.uri}
                     renderItem={({ item }) => (
                         <FastImage
                             source={{ uri: item.uri }}
                             style={{ width: '100%', height: '100%' }}
-                            resizeMode="contain"
+                            resizeMode={'contain'}
                         />
                     )}
                     initialIndex={0}
-                    numToRender={3}
                     doubleTapInterval={150}
                     onTap={onTap}
-                    loop
                     onScaleEnd={(scale) => {
                         if (scale < 0.8) {
                             // goBack();
                         }
+                    }}
+                    onIndexChange={(number) => {
+                        setPhotoIndex(number);
                     }}
                 />
             </View>
@@ -158,12 +171,18 @@ const GalleryScreen = ({ navigation }) => {
                     ]}
                 >
                     <View style={styles.buttonsContainer}>
-                        <TouchableOpacity style={styles.textContainer} onPress={handleTakePhoto}>
-                            <Text style={styles.buttonText}>Take Photo</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.textContainer} onPress={handleChoosePhoto}>
-                            <Text style={styles.buttonText}>Choose Photo</Text>
-                        </TouchableOpacity>
+                        <FeButton severity={"tertiary"} title={'Take photo'} onPress={handleTakePhoto}
+                                  containerStyle={styles.textContainer}
+                                  icon={<Icon type={'ionicon'} color={appStyle.colors.primary["400"]} iconStyle={{marginRight: 4}} name={'camera-outline'}/>}/>
+                        <FeButton severity={"tertiary"} title={'Choose photo'} onPress={handleChoosePhoto}
+                                  containerStyle={styles.textContainer}
+                                  icon={<Icon type={'ionicon'} color={appStyle.colors.primary["400"]} iconStyle={{marginRight: 4}} name={'images-outline'}/>}/>
+                        {/*<TouchableOpacity style={styles.textContainer} onPress={handleTakePhoto}>*/}
+                        {/*    <Text style={styles.buttonText}>Take Photo</Text>*/}
+                        {/*</TouchableOpacity>*/}
+                        {/*<TouchableOpacity style={styles.textContainer} onPress={handleChoosePhoto}>*/}
+                        {/*    <Text style={styles.buttonText}>Choose Photo</Text>*/}
+                        {/*</TouchableOpacity>*/}
                     </View>
                 </Animated.View>
             )}
@@ -174,13 +193,19 @@ const GalleryScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 10,
+        padding: 0,
+        margin: 0,
     },
     toolbar: {
         position: 'absolute',
         width: '100%',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        backgroundColor: appStyle.colors.background.brand_2,
         zIndex: 1,
+        flexDirection: 'row',
+    },
+    leftContainer: {
+        marginLeft: 12,
+        position: 'absolute',
     },
     textContainer: {
         flex: 1,
@@ -198,7 +223,7 @@ const styles = StyleSheet.create({
     buttonsContainer: {
         flex: 1,
         flexDirection: 'row',
-        justifyContent: 'space-between',
+        justifyContent: 'center',
     },
     buttonText: {
         fontSize: 20,
