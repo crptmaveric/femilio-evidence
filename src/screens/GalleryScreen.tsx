@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
     View,
     StyleSheet,
@@ -10,7 +10,7 @@ import {
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import MMKVStorage from 'react-native-mmkv-storage';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
-import Gallery, { GalleryRef, RenderItemInfo } from 'react-native-awesome-gallery';
+import Gallery, { GalleryRef } from 'react-native-awesome-gallery';
 import RNFS from 'react-native-fs2';
 import Animated, { FadeInDown, FadeInUp, FadeOutDown, FadeOutUp } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -46,9 +46,8 @@ const GalleryScreen = ({ navigation, route } : GalleryScreenProps) => {
             const storedPhotos = MMKV.getString(`photos_${patientId}`);
             if (storedPhotos) {
                 const parsedPhotos = JSON.parse(storedPhotos);
-                // console.log('Stored Photos:', parsedPhotos); // Log the stored photos
                 setPhotos(parsedPhotos);
-                convertBase64ToFileUris(parsedPhotos).then(r => {
+                convertBase64ToFileUris(parsedPhotos).then(() => {
                     setMounted(true);
                     setEmpty(false);
                 });
@@ -59,17 +58,19 @@ const GalleryScreen = ({ navigation, route } : GalleryScreenProps) => {
         }
     }, [isFocused, empty]);
 
+    // Nový useEffect pre správu aktualizácií galérie
+    useEffect(() => {
+        if (mounted && fileUris.length > 0 && gallery.current && typeof gallery.current.setIndex === 'function') {
+            gallery.current.setIndex(fileUris.length - 1, true); // Scroll to the last photo
+        } else {
+            console.warn('Gallery reference is not ready or setIndex is not a function');
+        }
+    }, [fileUris, mounted]);
+
     const convertBase64ToFileUris = async (base64Photos: string[]) => {
         const uris = await Promise.all(base64Photos.map(async (base64, index) => {
             const path = `${RNFS.DocumentDirectoryPath}/photo_${patientId}_${index}.jpg`;
             await RNFS.writeFile(path, base64.split(',')[1], 'base64');
-            // Verify file existence
-            const exists = await RNFS.exists(path);
-            if (exists) {
-                console.log(`File exists: ${path}`);
-            } else {
-                console.log(`File does not exist: ${path}`);
-            }
             return `file://${path}`;
         }));
         setFileUris(uris);
@@ -79,8 +80,10 @@ const GalleryScreen = ({ navigation, route } : GalleryScreenProps) => {
         MMKV.setString(`photos_${patientId}`, JSON.stringify(newPhotos));
         setPhotos(newPhotos);
         convertBase64ToFileUris(newPhotos).then(() => {
-            if (gallery.current) {
-                gallery.current.setIndex(newPhotos.length - 1, true); // Scroll to the last photo
+            if (gallery.current && typeof gallery.current.setIndex === 'function') {
+                gallery.current.setIndex(newPhotos.length - 1, true); // Scroll na poslednú fotku
+            } else {
+                console.warn('Gallery reference is not ready or setIndex is not a function');
             }
         });
     };
@@ -89,8 +92,10 @@ const GalleryScreen = ({ navigation, route } : GalleryScreenProps) => {
         launchImageLibrary({ mediaType: 'photo', includeBase64: true }, (response) => {
             if (response.assets) {
                 const newPhotos = response.assets.map(asset => `data:image/jpeg;base64,${asset.base64}`);
-                savePhotos([...photos, ...newPhotos]);
-                setEmpty(false);
+                savePhotos([...photos, ...newPhotos]).then(() => {
+                    setEmpty(false);
+                });
+
             }
         });
     };
@@ -99,8 +104,9 @@ const GalleryScreen = ({ navigation, route } : GalleryScreenProps) => {
         launchCamera({ mediaType: 'photo', includeBase64: true , presentationStyle: "fullScreen"}, (response) => {
             if (response.assets) {
                 const newPhotos = response.assets.map(asset => `data:image/jpeg;base64,${asset.base64}`);
-                savePhotos([...photos, ...newPhotos]);
-                setEmpty(false);
+                savePhotos([...photos, ...newPhotos]).then(() => {
+                    setEmpty(false);
+                });
             }
         });
     };
@@ -177,12 +183,6 @@ const GalleryScreen = ({ navigation, route } : GalleryScreenProps) => {
                         <FeButton severity={"tertiary"} title={'Choose photo'} onPress={handleChoosePhoto}
                                   containerStyle={styles.textContainer}
                                   icon={<Icon type={'ionicon'} color={appStyle.colors.primary["400"]} iconStyle={{marginRight: 4}} name={'images-outline'}/>}/>
-                        {/*<TouchableOpacity style={styles.textContainer} onPress={handleTakePhoto}>*/}
-                        {/*    <Text style={styles.buttonText}>Take Photo</Text>*/}
-                        {/*</TouchableOpacity>*/}
-                        {/*<TouchableOpacity style={styles.textContainer} onPress={handleChoosePhoto}>*/}
-                        {/*    <Text style={styles.buttonText}>Choose Photo</Text>*/}
-                        {/*</TouchableOpacity>*/}
                     </View>
                 </Animated.View>
             )}
