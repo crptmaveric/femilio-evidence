@@ -1,6 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import FeButton from "./FeButton";
+import {Icon} from "react-native-elements";
+import {appStyle} from "../theme/AppStyle";
 
 interface CustomHeaderProps {
     title: string;
@@ -10,6 +12,9 @@ interface CustomHeaderProps {
     cancelTitle?: string;
     saveTitle?: string;
     actionSeverity?: 'primary' | 'secondary' | 'tertiary';
+    showClose?: boolean;
+    showBack?: boolean;
+    iconOnly?: boolean;
 }
 
 const CustomHeader: React.FC<CustomHeaderProps> = ({
@@ -19,19 +24,47 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({
                                                        isModified = false,
                                                        saveTitle = 'Save',
                                                        cancelTitle = 'Cancel',
-                                                       actionSeverity = 'primary'
+                                                       actionSeverity = 'primary',
+                                                       showClose = false,
+                                                       showBack = false,
+                                                       iconOnly = false
                                                    }) => {
     return (
         <View style={styles.headerContainer}>
             <View style={[styles.sideContainer, styles.leftSideContainer]}>
                 {onCancel && (
-                    <FeButton severity={'tertiary'} onPress={onCancel} title={cancelTitle} />
+                    <FeButton
+                        severity={'tertiary'}
+                        onPress={onCancel}
+                        title={!iconOnly ? cancelTitle : ''}
+                        icon={
+                            showClose || iconOnly ? (
+                                <Icon
+                                    name={'close-sharp'}
+                                    type={'ionicon'}
+                                    color={appStyle.colors.primary['400']}
+                                />
+                            ) : showBack ? (
+                                <Icon
+                                    name={'chevron-back-sharp'}
+                                    type={'ionicon'}
+                                    color={appStyle.colors.primary['400']}
+                                />
+                            ) : null
+                        }
+                    />
                 )}
             </View>
             <Text style={styles.title}>{title}</Text>
             <View style={styles.sideContainer}>
                 {onSave && (
-                    <FeButton severity={actionSeverity} onPress={onSave} title={saveTitle} disabled={!isModified} size={'small'} />
+                    <FeButton
+                        severity={actionSeverity}
+                        onPress={onSave}
+                        title={saveTitle}
+                        disabled={!isModified}
+                        size={'small'}
+                    />
                 )}
             </View>
         </View>
@@ -46,6 +79,7 @@ const styles = StyleSheet.create({
         paddingVertical: 0,
         paddingHorizontal: 16,
         position: 'relative',
+        backgroundColor: 'transparent',
     },
     title: {
         position: 'absolute',
