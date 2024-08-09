@@ -3,16 +3,17 @@ import {ITextProps, Text} from 'native-base';
 import {StyleSheet, TextInput} from 'react-native';
 import {appStyle} from "../theme/AppStyle";
 
-interface FeTextInputProps extends ITextProps {
+interface FeTextInputProps extends Partial<ITextProps> {
     theme?: 'light' | 'dark';
     label?: string | null;
     type: 'single' | 'list';
     error?: boolean,
     multiline?: boolean,
+    numberInput?: boolean,
 }
 
 const FeTextInput = (props: FeTextInputProps) => {
-    const {theme, type,error, multiline, ...restProps} = props;
+    const {theme, type,error, multiline, numberInput= false, ...restProps} = props;
 
     const getVariantStyles = () => {
         switch (theme) {
@@ -43,6 +44,7 @@ const FeTextInput = (props: FeTextInputProps) => {
                 {...restProps}
                 borderRadius={type === 'single' ? appStyle.radius.s : 0}
                 multiline={multiline}
+                keyboardType={numberInput ? 'numeric' : 'default'}
                 placeholderTextColor={error ? 'red' : appStyle.colors.labels.secondary}
                 style={[getVariantStyles(), getTypeStyles(), multiline && styles.multiline]}
             />

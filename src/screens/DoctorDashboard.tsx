@@ -2,7 +2,7 @@ import React, {useCallback, useEffect, useLayoutEffect, useState} from 'react';
 import {View, FlatList, StyleSheet, SafeAreaView, Text} from 'react-native';
 import {getDatabaseConnection} from '../database';
 import FeButton from '../components/FeButton';
-import {Icon, ListItem, Avatar} from 'react-native-elements';
+import {Icon, ListItem, Avatar, Divider} from 'react-native-elements';
 import {FeTextAvatar} from '../components/FeTextAvatar';
 import {appStyle} from '../theme/AppStyle';
 import {Pressable} from "native-base";
@@ -19,6 +19,11 @@ const DoctorDashboard = ({navigation, route}: DoctorDashboardProps) => {
 
     const setNavigationOptions = useCallback(() => {
         navigation.setOptions({
+            headerTransparent: true,
+            headerTitleStyle: {
+                color: 'black'
+            },
+            headerTintColor: appStyle.colors.primary['400'],
             title: 'Patients',
             headerSearchBarOptions: {
                 placeholder: 'Search name...',
@@ -26,15 +31,17 @@ const DoctorDashboard = ({navigation, route}: DoctorDashboardProps) => {
                     const query = event.nativeEvent.text;
                     setSearchQuery(query);
                 },
+                barTintColor: appStyle.colors.background.brand_2,  // Background color of the search bar
+                tintColor: appStyle.colors.primary['400'],         // Text color
             },
             headerLargeTitle: true,
             headerRight: () => (
-                <Pressable
-                    paddingY={3}
-                    paddingLeft={6}
-                    onPress={() => navigation.navigate(Routes.AddPatient, {doctorId: route.params.doctorId})}>
-                    <Icon name={'information-circle-outline'} type={'ionicon'} color={appStyle.colors.primary['400']}/>
-                </Pressable>
+                <FeButton severity={"tertiary"}
+                          onPress={() => navigation.navigate(Routes.AddPatient, {doctorId: route.params.doctorId})}
+                          title={'Add Patient'}
+                          icon={
+                              <Icon name={'add-circle-outline'} type={'ionicon'} style={{marginRight: 4}}
+                                    color={appStyle.colors.primary['400']}/>}/>
             ),
         });
     }, [navigation]);
@@ -104,12 +111,12 @@ const DoctorDashboard = ({navigation, route}: DoctorDashboardProps) => {
                     keyExtractor={(item) => item.letter}
                     renderItem={({item}) => (
                         <View>
-                            <ListItem bottomDivider style={styles.groupHeaderContainer}>
+                            <ListItem style={styles.groupHeaderContainer} containerStyle={{backgroundColor: 'transparent'}}>
                                 <Text style={styles.groupHeader}>{item.letter}</Text>
                             </ListItem>
+                            {/*<Divider style={styles.customDivider} color={appStyle.colors.primary['200']} width={1} />*/}
                             {item.data.map(patient => (
                                 <ListItem
-                                    bottomDivider
                                     key={patient.id}
                                     containerStyle={[styles.listItem]}
                                     onPress={() => navigation.navigate(Routes.EditPatient, {patientId: patient.id})}
@@ -135,7 +142,7 @@ const DoctorDashboard = ({navigation, route}: DoctorDashboardProps) => {
                                         title={''}
                                         icon={
                                             <Icon
-                                                name={'add-circle-outline'}
+                                                name={'chevron-forward-outline'}
                                                 type={'ionicon'}
                                                 color={appStyle.colors.primary['400']}
                                                 style={{marginLeft: appStyle.spacing.s}}
@@ -147,6 +154,7 @@ const DoctorDashboard = ({navigation, route}: DoctorDashboardProps) => {
                                     />
                                 </ListItem>
                             ))}
+
                         </View>
                     )}
                 />
@@ -159,7 +167,9 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
     },
-    listItem: {},
+    listItem: {
+        backgroundColor: appStyle.colors.background.brand_2
+    },
     listItemSubtitle: {
         color: appStyle.colors.labels.secondary,
     },
@@ -168,13 +178,18 @@ const styles = StyleSheet.create({
         margin: 0,
     },
     groupHeader: {
-        paddingTop: appStyle.spacing.s,
+        paddingTop: appStyle.spacing.m,
         paddingBottom: 0,
         marginBottom : 0,
         paddingLeft: appStyle.spacing.m,
-        color: appStyle.colors.labels.secondary,
+        color: 'black',
         fontWeight: 'bold',
     },
+    customDivider: {
+        // height: 40,
+        // backgroundColor: 'white',
+        // borderColor: 'transparent',
+    }
 });
 
 export default DoctorDashboard;

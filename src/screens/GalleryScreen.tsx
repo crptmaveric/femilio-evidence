@@ -15,11 +15,11 @@ import RNFS from 'react-native-fs2';
 import Animated, { FadeInDown, FadeInUp, FadeOutDown, FadeOutUp } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import FastImage from "react-native-fast-image";
-import {GalleryScreenProps} from "../types";
+import { GalleryScreenProps } from "../types";
 import FeButton from "../components/FeButton";
 import CustomHeader from "../components/CustomHeader";
-import {appStyle} from "../theme/AppStyle";
-import {Icon} from "react-native-elements";
+import { appStyle } from "../theme/AppStyle";
+import { Icon } from "react-native-elements";
 
 const MMKV = new MMKVStorage.Loader().initialize();
 
@@ -58,18 +58,25 @@ const GalleryScreen = ({ navigation, route } : GalleryScreenProps) => {
         }
     }, [isFocused, empty]);
 
-    // Nový useEffect pre správu aktualizácií galérie
     useEffect(() => {
         if (mounted && fileUris.length > 0 && gallery.current && typeof gallery.current.setIndex === 'function') {
-            gallery.current.setIndex(fileUris.length - 1, true); // Scroll to the last photo
+            // Overenie, že galéria má prístupný aktuálny element
+            if (gallery.current) {
+                const index = fileUris.length - 1;
+                if(index > 0) {
+                    gallery.current.setIndex(index, true); // Scroll to the last photo
+                }
+            }
         } else {
             console.warn('Gallery reference is not ready or setIndex is not a function');
         }
     }, [fileUris, mounted]);
 
+
     const convertBase64ToFileUris = async (base64Photos: string[]) => {
-        const uris = await Promise.all(base64Photos.map(async (base64, index) => {
-            const path = `${RNFS.DocumentDirectoryPath}/photo_${patientId}_${index}.jpg`;
+        const uris = await Promise.all(base64Photos.map(async (base64) => {
+            // Použite timestamp na vytvorenie unikátneho názvu súboru
+            const path = `${RNFS.DocumentDirectoryPath}/photo_${patientId}_${Date.now()}.jpg`;
             await RNFS.writeFile(path, base64.split(',')[1], 'base64');
             return `file://${path}`;
         }));
@@ -81,7 +88,9 @@ const GalleryScreen = ({ navigation, route } : GalleryScreenProps) => {
         setPhotos(newPhotos);
         convertBase64ToFileUris(newPhotos).then(() => {
             if (gallery.current && typeof gallery.current.setIndex === 'function') {
-                gallery.current.setIndex(newPhotos.length - 1, true); // Scroll na poslednú fotku
+                if(newPhotos.length > 1) {
+                    gallery.current.setIndex(newPhotos.length - 1, true); // Scroll to the last photo
+                }
             } else {
                 console.warn('Gallery reference is not ready or setIndex is not a function');
             }
@@ -95,7 +104,6 @@ const GalleryScreen = ({ navigation, route } : GalleryScreenProps) => {
                 savePhotos([...photos, ...newPhotos]).then(() => {
                     setEmpty(false);
                 });
-
             }
         });
     };
@@ -111,12 +119,31 @@ const GalleryScreen = ({ navigation, route } : GalleryScreenProps) => {
         });
     };
 
+    const handleDeletePhoto = () => {
+        if (photos.length === 0) return;
+
+        const photoToDelete = photos[photoIndex];
+        const fileUriToDelete = fileUris[photoIndex];
+
+        const newPhotos = photos.filter((_, index) => index !== photoIndex);
+        savePhotos(newPhotos).then(() => {
+            RNFS.unlink(fileUriToDelete.replace('file://', ''))
+                .catch((error) => console.error('Error deleting file:', error));
+
+            if (newPhotos.length === 0) {
+                setEmpty(true);
+            } else {
+                setPhotoIndex(Math.min(photoIndex, newPhotos.length - 1)); // Update index properly
+            }
+        });
+    };
+
     const onTap = () => {
         StatusBar.setHidden(infoVisible, 'slide');
         setInfoVisible(!infoVisible);
     };
 
-    if(!mounted){
+    if (!mounted) {
         return (<Text>Loading...</Text>);
     }
 
@@ -134,10 +161,12 @@ const GalleryScreen = ({ navigation, route } : GalleryScreenProps) => {
                         },
                     ]}
                 >
-                    <CustomHeader title={`${photoIndex + 1} of ${photos.length} Photos`} showBack={true} onCancel={() => navigation.goBack()} iconOnly={true}/>
+                    <CustomHeader title={`${photoIndex + 1} of ${photos.length} Photos`} showBack={true} onCancel={() => navigation.goBack()} iconOnly={true} otherActions={[
+                        { title: 'Delete photo', action: () => {handleDeletePhoto()} }
+                    ]}/>
                 </Animated.View>
             )}
-            <View style={{marginTop: '-17%'}}>
+            <View style={{ marginTop: '-17%' }}>
                 <Gallery
                     ref={gallery}
                     style={{}}
@@ -179,10 +208,10 @@ const GalleryScreen = ({ navigation, route } : GalleryScreenProps) => {
                     <View style={styles.buttonsContainer}>
                         <FeButton severity={"tertiary"} title={'Take photo'} onPress={handleTakePhoto}
                                   containerStyle={styles.textContainer}
-                                  icon={<Icon type={'ionicon'} color={appStyle.colors.primary["400"]} iconStyle={{marginRight: 4}} name={'camera-outline'}/>}/>
+                                  icon={<Icon type={'ionicon'} color={appStyle.colors.primary["400"]} iconStyle={{ marginRight: 4 }} name={'camera-outline'} />} />
                         <FeButton severity={"tertiary"} title={'Choose photo'} onPress={handleChoosePhoto}
                                   containerStyle={styles.textContainer}
-                                  icon={<Icon type={'ionicon'} color={appStyle.colors.primary["400"]} iconStyle={{marginRight: 4}} name={'images-outline'}/>}/>
+                                  icon={<Icon type={'ionicon'} color={appStyle.colors.primary["400"]} iconStyle={{ marginRight: 4 }} name={'images-outline'} />} />
                     </View>
                 </Animated.View>
             )}

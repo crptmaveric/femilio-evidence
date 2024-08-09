@@ -46,6 +46,14 @@ export const createTables = async () => {
       );`
     );
 
+    await db.executeSql(
+        `CREATE TABLE IF NOT EXISTS Photos (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        uri TEXT NOT NULL,
+        date TEXT NOT NULL
+      );`
+    );
+
     // Check if the admin user already exists
     const results = await db.executeSql('SELECT * FROM Users WHERE login = ?', ['admin']);
     if (results.length > 0 && results[0].rows.length === 0) {
@@ -66,6 +74,7 @@ export const deleteDatabase = async () => {
 
     await db.executeSql('DROP TABLE IF EXISTS Users;');
     await db.executeSql('DROP TABLE IF EXISTS Patients;');
+    await db.executeSql('DROP TABLE IF EXISTS Photos;');
 
     await createTables();
 };

@@ -2,6 +2,38 @@
   "migIndex": 1,
   "data": [
     {
+      "path": "assets/fonts/FontAwesome.ttf",
+      "sha1": "13b1eab65a983c7a73bc7997c479d66943f7c6cb"
+    },
+    {
+      "path": "assets/fonts/FontAwesome5_Brands.ttf",
+      "sha1": "3fa2d67cef22da5c3f3eb5730c6afbd6fecf0372"
+    },
+    {
+      "path": "assets/fonts/FontAwesome5_Regular.ttf",
+      "sha1": "7d849a3981a716e2ba4a84634bc57d0b8054a6a3"
+    },
+    {
+      "path": "assets/fonts/FontAwesome5_Solid.ttf",
+      "sha1": "c1b9fae262f42868c075ac865a8ab34920e20a2c"
+    },
+    {
+      "path": "assets/fonts/FontAwesome6_Brands.ttf",
+      "sha1": "d8b3568e9d8a1d3c01c85520eb9ca0b49b72815d"
+    },
+    {
+      "path": "assets/fonts/FontAwesome6_Regular.ttf",
+      "sha1": "2d7890e12afb77490112ec57fe47ca0688aebda2"
+    },
+    {
+      "path": "assets/fonts/FontAwesome6_Solid.ttf",
+      "sha1": "e9ace557c3aa403307f1e7a2cef1c035d522b94b"
+    },
+    {
+      "path": "assets/fonts/Ionicons.ttf",
+      "sha1": "86e07c3d974eb09099e6e5a9b3b8310303cf0feb"
+    },
+    {
       "path": "assets/fonts/LICENSE.txt",
       "sha1": "47b573e3824cd5e02a1a3ae99e2735b49e0256e4"
     },
@@ -76,6 +108,22 @@
     {
       "path": "assets/fonts/SF-Pro-Text-UltralightItalic.otf",
       "sha1": "cc5a16a035a426b5cb4eb35573c861e2c5600de9"
+    },
+    {
+      "path": "assets/fonts/alkaline-bold.otf",
+      "sha1": "09eba0eec6517be668ecc9919431ccb827cc6fd2"
+    },
+    {
+      "path": "assets/fonts/alkaline-heavy.otf",
+      "sha1": "6805dd3098f099601c06fbf41372c83716f7efca"
+    },
+    {
+      "path": "assets/fonts/alkaline-medium.otf",
+      "sha1": "4b3ec52f99d9412cbf1d481ef0d12226a9b9a04e"
+    },
+    {
+      "path": "assets/fonts/alkaline-regular.otf",
+      "sha1": "b59bbfff03f7d8cae8bcd59264967fee492866c9"
     }
   ]
 }

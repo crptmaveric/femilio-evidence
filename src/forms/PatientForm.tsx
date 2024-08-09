@@ -1,7 +1,7 @@
 import React, {useEffect} from 'react';
 import {View, StyleSheet, ActionSheetIOS} from 'react-native';
 import {FormikProps} from 'formik';
-import {ListItem, Avatar} from 'react-native-elements';
+import {ListItem, Avatar, Divider} from 'react-native-elements';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import {appStyle} from "../theme/AppStyle";
 import {Routes} from "../types";
@@ -13,6 +13,8 @@ import MMKVStorage from "react-native-mmkv-storage";
 
 export interface PatientFormProps extends FormikProps<any> {
     navigation: any;
+    type: 'add' | 'edit',
+    patientId?: string,
 }
 
 const MMKV = new MMKVStorage.Loader().initialize();
@@ -24,7 +26,9 @@ const PatientForm: React.FC<PatientFormProps> = ({
                                                      values,
                                                      errors,
                                                      touched,
-                                                     navigation
+                                                     navigation,
+                                                     type,
+                                                     patientId
                                                  }) => {
     const [photoUri, setPhotoUri] = React.useState<string | null>(null);
 
@@ -100,11 +104,11 @@ const PatientForm: React.FC<PatientFormProps> = ({
                         />
                         :
                         <Avatar size={'xlarge'} rounded={true}
-                                containerStyle={{backgroundColor: appStyle.colors.primary[50]}} />}
+                                containerStyle={{backgroundColor: appStyle.colors.primary["100"]}} />}
                     <FeButton title="Add Photo" onPress={showActionSheet} severity="secondary"/>
                 </View>
                 <View style={styles.formGroup}>
-                    <ListItem bottomDivider containerStyle={styles.listItem}>
+                    <ListItem containerStyle={styles.listItem}>
                         <ListItem.Content>
                             <ListItem.Title>First name</ListItem.Title>
                         </ListItem.Content>
@@ -117,7 +121,8 @@ const PatientForm: React.FC<PatientFormProps> = ({
                             type={'list'}
                         />
                     </ListItem>
-                    <ListItem bottomDivider containerStyle={styles.listItem}>
+                    <Divider color={appStyle.colors.primary['100']} width={1} />
+                    <ListItem containerStyle={styles.listItem}>
                         <ListItem.Content>
                             <ListItem.Title>Last name</ListItem.Title>
                         </ListItem.Content>
@@ -130,12 +135,14 @@ const PatientForm: React.FC<PatientFormProps> = ({
                             type={'list'}
                         />
                     </ListItem>
+                    <Divider color={appStyle.colors.primary['100']} width={1} />
                     <ListItem containerStyle={styles.listItem}>
                         <ListItem.Content>
                             <ListItem.Title>Birth Number</ListItem.Title>
                         </ListItem.Content>
                         <FeTextInput
                             placeholder="required"
+                            numberInput={true}
                             error={touched.birthNumber && errors.birthNumber}
                             onChangeText={handleChange('birthNumber')}
                             onBlur={handleBlur('birthNumber')}
@@ -161,7 +168,7 @@ const PatientForm: React.FC<PatientFormProps> = ({
                                 {values.street || values.city || values.postalCode || values.country ? `${values.street}, ${values.city}, ${values.postalCode}, ${values.country}` : ''}
                             </ListItem.Subtitle>
                         </ListItem.Content>
-                        <ListItem.Chevron/>
+                        <ListItem.Chevron color={appStyle.colors.primary["400"]}/>
                     </ListItem>
                 </View>
                 <View style={styles.formGroup}>
@@ -171,12 +178,12 @@ const PatientForm: React.FC<PatientFormProps> = ({
                             <ListItem.Title style={styles.listItemTitle}>Diagnosis</ListItem.Title>
                             <ListItem.Subtitle style={styles.listItemSubtitle}>{values.diagnosis}</ListItem.Subtitle>
                         </ListItem.Content>
-                        <ListItem.Chevron/>
+                        <ListItem.Chevron color={appStyle.colors.primary["400"]}/>
                     </ListItem>
                 </View>
-                <View style={styles.formGroup}>
-                    <FeButton title="View Gallery" onPress={() => navigation.navigate(Routes.GalleryScreen)} severity="secondary" />
-                </View>
+                {type === 'edit' && (
+                   <FeButton title="View Gallery" onPress={() => navigation.navigate(Routes.GalleryScreen, {patientId: patientId})} severity="secondary" />
+                )}
             </View>
         </ScrollView>
     );
@@ -205,6 +212,7 @@ const styles = StyleSheet.create({
     },
     listItem: {
         paddingVertical: appStyle.spacing.s,
+        // backgroundColor: appStyle.colors.primary["50"]
     },
     listItemContent: {},
     listItemTitle: {},

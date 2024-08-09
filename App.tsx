@@ -116,6 +116,44 @@ export default function App() {
                     italic: 'SF-Pro-Text-BlackItalic',
                 },
             },
+            Alkaline: {
+                100: {
+                    normal: 'alkaline-medium',
+                    italic: 'alkaline-medium',
+                },
+                200: {
+                    normal: 'alkaline-medium',
+                    italic: 'alkaline-medium',
+                },
+                300: {
+                    normal: 'alkaline-medium',
+                    italic: 'alkaline-medium',
+                },
+                400: {
+                    normal: 'alkaline-regular',
+                    italic: 'alkaline-regular',
+                },
+                500: {
+                    normal: 'alkaline-regular',
+                    italic: 'alkaline-regular',
+                },
+                600: {
+                    normal: 'alkaline-regular',
+                    italic: 'alkaline-regular',
+                },
+                700: {
+                    normal: 'alkaline-bold',
+                    italic: 'alkaline-bold',
+                },
+                800: {
+                    normal: 'alkaline-heavy',
+                    italic: 'alkaline-heavy',
+                },
+                900: {
+                    normal: 'alkaline-heavy',
+                    italic: 'alkaline-heavy',
+                },
+            }
         },
         fonts: {
             heading: 'SF',

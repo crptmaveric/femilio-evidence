@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
         borderRadius: 12,
     },
     secondary: {
-        backgroundColor: appStyle.colors.primary['50'],
+        backgroundColor: appStyle.colors.primary['100'],
         color: appStyle.colors.primary['400'],
         borderRadius: 12,
     },

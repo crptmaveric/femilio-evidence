@@ -17,6 +17,7 @@ import InitialScreen from "./src/screens/InitialScreen";
 import AddressForm from "./src/forms/AddressForm";
 import DiagnosisForm from "./src/forms/DiagnosisForm";
 import GalleryScreen from "./src/screens/GalleryScreen";
+import {appStyle} from "./src/theme/AppStyle";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -30,11 +31,15 @@ const AppNavigator = () => {
     //         </View>
     //     );
     // }
-
+    // <Stack.Navigator  screenOptions={{
+    //     contentStyle:{
+    //         backgroundColor:'#FFFFFF'
+    //     }
+    // }}  initialRouteName="Home">
     return (
         <NavigationContainer>
             {/*<Stack.Navigator initialRouteName={user ? (user.role === 'admin' ? Routes.AdminDashboard : Routes.DoctorDashboard) : Routes.LoginScreen}>*/}
-            <Stack.Navigator initialRouteName={Routes.InitialScreen}>
+            <Stack.Navigator initialRouteName={Routes.InitialScreen} screenOptions={{contentStyle: {backgroundColor: appStyle.colors.background.brand_2}}}>
                 <Stack.Screen name={Routes.InitialScreen} component={InitialScreen} />
                 {/*<Stack.Screen name={Routes.LoginScreen} component={LoginScreen} />*/}
                 <Stack.Screen name={Routes.RegisterScreen} component={RegisterScreen} />

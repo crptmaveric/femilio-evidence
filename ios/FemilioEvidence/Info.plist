@@ -67,13 +67,24 @@
 		<string>SF-Pro-Text-ThinItalic.otf</string>
 		<string>SF-Pro-Text-Ultralight.otf</string>
 		<string>SF-Pro-Text-UltralightItalic.otf</string>
+		<string>alkaline-bold.otf</string>
+		<string>alkaline-heavy.otf</string>
+		<string>alkaline-medium.otf</string>
+		<string>alkaline-regular.otf</string>
+		<string>FontAwesome.ttf</string>
+		<string>FontAwesome5_Brands.ttf</string>
+		<string>FontAwesome5_Regular.ttf</string>
+		<string>FontAwesome5_Solid.ttf</string>
+		<string>FontAwesome6_Brands.ttf</string>
+		<string>FontAwesome6_Regular.ttf</string>
+		<string>FontAwesome6_Solid.ttf</string>
+		<string>Ionicons.ttf</string>
 	</array>
-  <key>NSPhotoLibraryUsageDescription</key>
-  <string>We need access to your photo library to select and upload images.</string>
-  <key>NSCameraUsageDescription</key>
-  <string>We need access to your camera to take photos for your profile.</string>
-  <key>NSMicrophoneUsageDescription</key>
-  <string>We need access to your microphone to capture audio while recording videos.</string>
-
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>We need access to your photo library to select and upload images.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>We need access to your camera to take photos for your profile.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>We need access to your microphone to capture audio while recording videos.</string>
 </dict>
 </plist>

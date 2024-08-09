@@ -26,9 +26,12 @@ export const handleSavePatient = async (values: PatientValues, patientId?: strin
     try {
         const db = await getDatabaseConnection();
         const address = `${values.street}, ${values.city}, ${values.postalCode}, ${values.country}`;
+        let photoBase64 = null;
 
-        // Retrieve the photo base64 string from MMKV
-        const photoBase64 = MMKV.getString(values.photo);
+        if(values.photo !== null) {
+            // Retrieve the photo base64 string from MMKV
+            photoBase64 = MMKV.getString(values.photo);
+        }
 
         if (patientId) {
             await db.executeSql(
@@ -45,6 +48,5 @@ export const handleSavePatient = async (values: PatientValues, patientId?: strin
         console.log("Patient data saved successfully.");
     } catch (error) {
         console.error("Error saving patient data: ", error);
-        throw new Error("Failed to save patient data. Please try again.");
     }
 };

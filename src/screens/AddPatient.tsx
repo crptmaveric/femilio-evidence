@@ -1,5 +1,5 @@
-import React, {useEffect} from 'react';
-import {StyleSheet, Alert, View, SafeAreaView} from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { StyleSheet, Alert, View, SafeAreaView } from 'react-native';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { AddPatientProps } from "../types";
@@ -21,14 +21,8 @@ const validationSchema = Yup.object().shape({
 });
 
 const AddPatient = ({ navigation, route }: AddPatientProps) => {
-    const formikRef = React.useRef(null);
+    const formikRef = useRef(null);
     const doctorId = route.params.doctorId;
-
-    useEffect(() => {
-        navigation.setOptions({
-            headerShown: false,
-        });
-    }, [navigation]);
 
     const handleCancel = (dirty) => {
         if (dirty) {
@@ -69,19 +63,32 @@ const AddPatient = ({ navigation, route }: AddPatientProps) => {
             validationSchema={validationSchema}
             onSubmit={handleSave}
         >
-            {formikProps => (
-                <SafeAreaView style={{ flex: 1 }}>
-                    <CustomHeader
-                        cancelTitle={'Close'}
-                        saveTitle={'Save'}
-                        title=""
-                        onCancel={() => handleCancel(formikProps.dirty)}
-                        onSave={formikProps.handleSubmit}
-                        isModified={formikProps.dirty}
-                    />
-                    <PatientForm {...formikProps} navigation={navigation} />
-                </SafeAreaView>
-            )}
+            {(formikProps) => {
+                useEffect(() => {
+                    navigation.setOptions({
+                        headerTransparent: true,
+                        header: () => (
+                            <SafeAreaView style={{ flex: 1 }}>
+                                <CustomHeader
+                                    saveTitle="Save"
+                                    title=""
+                                    showClose={true}
+                                    iconOnly={true}
+                                    onCancel={() => handleCancel(formikProps.dirty)}
+                                    onSave={formikProps.handleSubmit}
+                                    isModified={formikProps.dirty}
+                                />
+                            </SafeAreaView>
+                        ),
+                    });
+                }, [navigation, formikProps.dirty, formikProps.handleSubmit]);
+
+                return (
+                    <SafeAreaView style={{ flex: 1 }}>
+                        <PatientForm {...formikProps} navigation={navigation} type={'add'} />
+                    </SafeAreaView>
+                );
+            }}
         </Formik>
     );
 };

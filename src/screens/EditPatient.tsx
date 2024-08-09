@@ -52,11 +52,6 @@ const EditPatient = ({ navigation, route }: EditPatientProps) => {
         loadPatientData();
     }, [route.params.patientId]);
 
-    useEffect(() => {
-        navigation.setOptions({
-            headerShown: false,
-        });
-    }, [navigation]);
 
     const handleSave = async (values: PatientValues) => {
         const imagePath = await saveImage(values.photo);
@@ -83,6 +78,7 @@ const EditPatient = ({ navigation, route }: EditPatientProps) => {
         return null;
     }
 
+
     return (
         <Formik
             innerRef={formikRef}
@@ -91,21 +87,43 @@ const EditPatient = ({ navigation, route }: EditPatientProps) => {
             onSubmit={handleSave}
             validate={(values) => setIsModified(JSON.stringify(values) !== JSON.stringify(originalValues))}
         >
-            {formikProps => (
-                <SafeAreaView style={{ flex: 1}}>
-                    <CustomHeader
-                        cancelTitle={'Close'}
-                        saveTitle={'Save'}
-                        title=""
-                        onCancel={() => handleCancel(formikProps.dirty)}
-                        onSave={formikProps.handleSubmit}
-                        isModified={formikProps.dirty}
-                    />
-                    <PatientForm {...formikProps} navigation={navigation} />
-                </SafeAreaView>
-            )}
+            {(formikProps) => {
+                useEffect(() => {
+                    navigation.setOptions({
+                        headerTransparent: true,
+                        header: () => (
+                            <SafeAreaView style={{ flex: 1 }}>
+                                <CustomHeader
+                                    cancelTitle="Close"
+                                    saveTitle="Save"
+                                    showClose={true}
+                                    iconOnly={true}
+                                    title=""
+                                    onCancel={() => handleCancel(formikProps.dirty)}
+                                    onSave={formikProps.handleSubmit}
+                                    isModified={formikProps.dirty}
+                                />
+                            </SafeAreaView>
+                        ),
+                    });
+                }, [navigation, formikProps.dirty, formikProps.handleSubmit]);
+
+                return (
+                    <SafeAreaView style={{ flex: 1 }}>
+                        <View style={{marginTop: 28}}>
+                            <PatientForm
+                                {...formikProps}
+                                navigation={navigation}
+                                type={'edit'}
+                                patientId={route.params.patientId}
+                            />
+                        </View>
+                    </SafeAreaView>
+                );
+            }}
         </Formik>
     );
+
 };
 
 const styles = StyleSheet.create({

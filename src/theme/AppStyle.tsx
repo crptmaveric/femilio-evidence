@@ -12,17 +12,19 @@ const palette = {
 export const theme = {
     colors: {
         primary: {
-            50: '#cdcdff',
-            100: '#a8a8fc',
-            200: '#8686f7',
-            300: '#6666ef',
-            400: '#4443eb',
-            500: '#3333e2',
-            600: '#2727d6',
-            700: '#2b2bbc',
-            800: '#2c2ca2',
-            900: '#2d2d8a',
+            '50': '#fef2f2',
+            '100': '#fee2e2',
+            '200': '#fecaca',
+            '300': '#fda4a4',
+            '400': '#f97272',
+            '500': '#f04343',
+            '600': '#dd2525',
+            '700': '#ba1b1b',
+            '800': '#9a1a1a',
+            '900': '#801c1c',
+            '950': '#450a0a',
         },
+
         danger: {
             50: '#fff1f2',
             100: '#ffe4e6',
@@ -38,7 +40,8 @@ export const theme = {
         background: {
             gray_1: '#F2F2F7',
             gray_2: 'rgba(0, 0, 0, 0.48)',
-            brand_1: '#e5e5fc',
+            brand_1: '#FFF1E5',
+            brand_2: '#fcf4f3',
         },
         labels: {
             secondary: 'rgba(60,60,68,0.6)',

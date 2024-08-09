@@ -25,7 +25,7 @@ export const FeTextAvatar = (props: {
         size={props.size ?? 48}
         title={props.name ? getInitials(props.name) : 'Unknown'}
         rounded={true}
-        containerStyle={{backgroundColor: appStyle.colors.primary['50']}}
+        containerStyle={{backgroundColor: appStyle.colors.primary['100']}}
         titleStyle={{color: appStyle.colors.primary['400']}}
       />
     </>

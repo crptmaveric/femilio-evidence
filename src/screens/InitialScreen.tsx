@@ -1,12 +1,22 @@
-import React, {useState, useEffect} from 'react';
-import {View, Button, StyleSheet, Alert, SafeAreaView} from 'react-native';
-import {Picker} from '@react-native-picker/picker';
-import {getDatabaseConnection} from '../database';
-import {InitialScreenProps, Routes} from "../types";
+import React, { useState, useEffect, useCallback } from 'react';
+import {View, StyleSheet, Alert, SafeAreaView, ScrollView, TouchableOpacity, Text} from 'react-native';
+import { getDatabaseConnection } from '../database';
+import { InitialScreenProps, Routes } from "../types";
+import { FeTextAvatar } from "../components/FeTextAvatar";
+import FeButton from "../components/FeButton";
+import {Card} from "react-native-elements";
+import {appStyle} from "../theme/AppStyle";
 
-const InitialScreen = ({navigation}: InitialScreenProps) => {
+const InitialScreen = ({ navigation }: InitialScreenProps) => {
     const [users, setUsers] = useState([]);
     const [selectedUser, setSelectedUser] = useState(null);
+
+    useEffect(() => {
+        navigation.setOptions({
+            headerShown: false,
+            title: 'Accounts'
+        });
+    }, [navigation]);
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -20,7 +30,11 @@ const InitialScreen = ({navigation}: InitialScreenProps) => {
         fetchUsers();
     }, []);
 
-    const handleSelectUser = () => {
+    const handleSelectUser = (userId) => {
+        setSelectedUser(userId);
+    };
+
+    const handleProceed = () => {
         if (selectedUser) {
             const user = users.find(user => user.id == selectedUser);
 
@@ -28,7 +42,7 @@ const InitialScreen = ({navigation}: InitialScreenProps) => {
                 if (user.role === 'admin') {
                     navigation.navigate(Routes.AdminDashboard);
                 } else if (user.role === 'doctor') {
-                    navigation.navigate(Routes.DoctorDashboard, {doctorId: user.id});
+                    navigation.navigate(Routes.DoctorDashboard, { doctorId: user.id });
                 } else {
                     Alert.alert("Invalid role");
                 }
@@ -40,17 +54,36 @@ const InitialScreen = ({navigation}: InitialScreenProps) => {
 
     return (
         <SafeAreaView style={styles.container}>
-            <Picker
-                selectedValue={selectedUser}
-                onValueChange={(itemValue) => setSelectedUser(itemValue)}
-                style={styles.picker}
-            >
-                <Picker.Item label="Select a user" value={null}/>
+            <ScrollView style={styles.scrollView}>
+                <View style={styles.headlineContainer}>
+                    <Text style={styles.headlineText}>Please select a user</Text>
+                </View>
                 {users.map(user => (
-                    <Picker.Item key={user.id} label={`${user.firstName} ${user.lastName}`} value={user.id}/>
+                    <TouchableOpacity key={user.id} onPress={() => handleSelectUser(user.id)}>
+                        <Card containerStyle={[styles.card, selectedUser === user.id && styles.selectedCard]}>
+                            <View style={styles.avatarContainer}>
+                            <FeTextAvatar
+                                name={`${user.firstName} ${user.lastName}`}
+                                size={'large'}
+                                rounded
+                                containerStyle={styles.avatar}
+                            />
+                            </View>
+                            <View style={styles.titleContainer}>
+                                <Card.Title>{`${user.firstName} ${user.lastName}`}</Card.Title>
+                            </View>
+                        </Card>
+                    </TouchableOpacity>
                 ))}
-            </Picker>
-            <Button title="Proceed" onPress={handleSelectUser}/>
+            </ScrollView>
+            <View style={styles.actionContainer}>
+                <FeButton
+                    severity={'primary'}
+                    title="Proceed"
+                    onPress={handleProceed}
+                    disabled={!selectedUser}  // Disable button if no user is selected
+                />
+            </View>
         </SafeAreaView>
     );
 };
@@ -58,15 +91,46 @@ const InitialScreen = ({navigation}: InitialScreenProps) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
         padding: 16,
+        justifyContent: 'flex-start',
+        alignItems: 'flex-start',
     },
-    picker: {
-        flex: 1,
-        height: 40,
+    scrollView: {
         width: '100%',
     },
+    headlineContainer: {
+        margin: 16,
+        alignItems: 'center'
+    },
+    headlineText: {
+        fontSize: 24,
+        fontWeight: 'bold',
+    },
+    card: {
+        marginBottom: 10,
+        alignItems: 'center',
+        borderRadius: 12,
+    },
+    selectedCard: {
+        borderWidth: 2,
+        borderColor: appStyle.colors.primary["400"]
+    },
+    avatar: {
+    },
+    avatarContainer: {
+        alignItems: 'center',
+        marginVertical: appStyle.spacing.m,
+    },
+    titleContainer: {
+        alignItems: 'center'
+    },
+    actionContainer: {
+        paddingHorizontal: 16,
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'stretch',
+        width: '100%',
+    }
 });
 
 export default InitialScreen;

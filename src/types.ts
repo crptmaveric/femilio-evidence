@@ -67,7 +67,7 @@ export type RootStackParamList = {
         handleChange: any,
     };
     [Routes.GalleryScreen]: {
-
+        patientId: string,
     };
 };
 
